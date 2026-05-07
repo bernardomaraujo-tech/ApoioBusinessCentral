@@ -1,0 +1,16 @@
+### Criar customer request JSM
+POST https://your-domain.atlassian.net/rest/servicedeskapi/request
+Authorization: Basic {{JIRA_BASIC_AUTH}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "serviceDeskId": "1",
+  "requestTypeId": "10001",
+  "requestFieldValues": {
+    "summary": "Erro ao registar fatura de venda",
+    "description": "Mensagem de erro ao tentar registar documento...",
+    "customfield_empresa_bc": "EMPRESA01",
+    "customfield_ambiente_bc": "Production"
+  }
+}

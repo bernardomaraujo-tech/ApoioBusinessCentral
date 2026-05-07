@@ -1,0 +1,33 @@
+workflow:
+  states:
+    - Novo
+    - Triagem
+    - A aguardar informação
+    - Em análise
+    - Em execução
+    - Em validação
+    - Resolvido
+    - Fechado
+    - Reaberto
+
+  transitions:
+    - from: Novo
+      to: Triagem
+    - from: Triagem
+      to: A aguardar informação
+    - from: A aguardar informação
+      to: Triagem
+    - from: Triagem
+      to: Em análise
+    - from: Em análise
+      to: Em execução
+    - from: Em execução
+      to: Em validação
+    - from: Em validação
+      to: Resolvido
+    - from: Resolvido
+      to: Fechado
+    - from: Resolvido
+      to: Reaberto
+    - from: Reaberto
+      to: Em análise

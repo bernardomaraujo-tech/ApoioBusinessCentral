@@ -1,0 +1,22 @@
+sla:
+  default_first_response:
+    target: 24h
+    applies_to:
+      - P1
+      - P2
+      - P3
+      - P4
+
+  pause_states:
+    - A aguardar informação
+    - A aguardar validação do utilizador
+    - A aguardar terceiro/parceiro
+
+  active_states:
+    - Novo
+    - Triagem
+    - Em análise
+    - Em execução
+    - Em validação
+
+  review_after_days: 60

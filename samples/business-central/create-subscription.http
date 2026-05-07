@@ -1,0 +1,10 @@
+### Criar subscription webhook Business Central
+POST https://api.businesscentral.dynamics.com/v2.0/{{tenantId}}/{{environment}}/api/v2.0/subscriptions
+Authorization: Bearer {{BC_ACCESS_TOKEN}}
+Content-Type: application/json
+
+{
+  "notificationUrl": "https://api.example.com/webhooks/business-central",
+  "resource": "companies({{companyId}})/salesInvoices",
+  "clientState": "{{BC_WEBHOOK_CLIENT_STATE}}"
+}

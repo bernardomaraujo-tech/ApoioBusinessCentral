@@ -1,0 +1,11 @@
+{
+  "value": [
+    {
+      "subscriptionId": "00000000-0000-0000-0000-000000000000",
+      "clientState": "change-me-random-secret",
+      "resource": "companies(id)/salesInvoices(id)",
+      "changeType": "updated",
+      "lastModifiedDateTime": "2026-05-07T10:00:00Z"
+    }
+  ]
+}

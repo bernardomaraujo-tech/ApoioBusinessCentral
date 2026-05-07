@@ -1,0 +1,115 @@
+request_types:
+  - key: ABC-ACCESS
+    name: Acesso / permissões / utilizadores
+    priority_hint: alta_se_bloqueia_operacao
+    required_fields:
+      - company
+      - bc_environment
+      - affected_user
+      - access_profile_requested
+      - justification
+    resolution_criteria:
+      - acesso aplicado ou orientação enviada
+      - validação com requerente
+
+  - key: ABC-FUNC-ERROR
+    name: Erro funcional
+    priority_hint: alta
+    required_fields:
+      - company
+      - bc_environment
+      - module
+      - summary
+      - description
+      - reproduction_steps
+      - screenshot_or_error
+    resolution_criteria:
+      - causa identificada
+      - workaround ou correção comunicada
+      - artigo KB associado se aplicável
+
+  - key: ABC-CONFIG
+    name: Issue de configuração
+    priority_hint: media_alta
+    required_fields:
+      - company
+      - bc_environment
+      - module
+      - current_configuration
+      - requested_configuration
+      - business_impact
+
+  - key: ABC-MASTERDATA
+    name: Dados mestres
+    priority_hint: media
+    required_fields:
+      - company
+      - bc_environment
+      - master_data_type
+      - entity_reference
+      - requested_change
+
+  - key: ABC-FINANCE
+    name: Financeiro / faturação / cobranças
+    priority_hint: alta
+    required_fields:
+      - company
+      - bc_environment
+      - document_reference
+      - financial_process
+      - impact
+      - urgency
+      - description
+
+  - key: ABC-PURCHASE
+    name: Compras
+    priority_hint: media_alta
+    required_fields:
+      - company
+      - bc_environment
+      - purchase_document_reference
+      - supplier
+      - description
+
+  - key: ABC-SALES
+    name: Vendas
+    priority_hint: alta
+    required_fields:
+      - company
+      - bc_environment
+      - sales_document_reference
+      - customer
+      - description
+
+  - key: ABC-LOGISTICS
+    name: Logística / armazenagem / expedição
+    priority_hint: alta
+    required_fields:
+      - company
+      - bc_environment
+      - location
+      - item_or_document_reference
+      - description
+
+  - key: ABC-INTEGRATION
+    name: Integrações / importações / exportações
+    priority_hint: alta
+    required_fields:
+      - company
+      - bc_environment
+      - source_system
+      - target_system
+      - error_datetime
+      - payload_or_file_reference
+      - description
+
+  - key: ABC-CHANGE
+    name: Pedido de melhoria / evolutivo
+    priority_hint: baixa_media
+    required_fields:
+      - company
+      - bc_environment
+      - current_process
+      - desired_process
+      - expected_benefit
+      - business_impact

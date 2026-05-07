@@ -1,0 +1,16 @@
+### Criar draft de página Confluence
+POST https://your-domain.atlassian.net/wiki/api/v2/pages
+Authorization: Basic {{CONFLUENCE_BASIC_AUTH}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "spaceId": "123456",
+  "status": "draft",
+  "title": "Exemplo de artigo KB",
+  "parentId": "123456",
+  "body": {
+    "representation": "storage",
+    "value": "<h1>Exemplo de artigo KB</h1><p>Conteúdo...</p>"
+  }
+}
