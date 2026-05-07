@@ -151,21 +151,37 @@ function currentQuery() {
   return input ? input.value.trim() : "";
 }
 
+function currentSupportDetail() {
+  const input = document.getElementById("supportDetail");
+  return input ? input.value.trim() : "";
+}
+
 function buildMailto() {
   const query = currentQuery();
-  const subject = encodeURIComponent("Pedido de apoio Business Central");
+  const detail = currentSupportDetail();
+  const subject = encodeURIComponent(`Pedido de apoio Business Central${query ? " - " + query.slice(0, 70) : ""}`);
   const body = encodeURIComponent(
 `Olá,
 
 Preciso de apoio com o seguinte tema no Business Central:
 
+Questão / problema:
 ${query || "[descrever problema]"}
 
+Detalhe adicional:
+${detail || "[adicionar contexto, passos, documento BC, mensagem de erro ou impacto operacional]"}
+
 Tentei pesquisar na ApoioBusinessCentral mas não consegui resolver.
+
+Nota: se existir imagem/print do erro, segue em anexo neste email.
 
 Obrigado.`
   );
   return `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+function refreshSupportMailLink() {
+  refreshSupportMailLink();
 }
 
 function renderMain() {
@@ -177,55 +193,75 @@ function renderMain() {
   const visibleCount = kb.filter(a => role === "agent" ? a.agent : a.user).length;
 
   root.innerHTML = `
-    <div class="hero">
-      <div class="card">
-        <h2>Como queres aceder?</h2>
-        <p class="muted">A informação apresentada depende do perfil selecionado.</p>
-
-        <div class="role-selector">
-          <button class="${role === "user" ? "active" : "secondary"}" onclick="setRole('user')">Sou utilizador</button>
-          <button class="${role === "agent" ? "active" : "secondary"}" onclick="setRole('agent')">Sou agente</button>
+    <section class="hero-card">
+      <div class="hero-top">
+        <div class="hero-title">
+          <h2>Como podemos ajudar?</h2>
+          <p>Encontra respostas na base de conhecimento ou entra em contacto com o suporte.</p>
         </div>
 
-        <div class="meta-row">
-          <span class="pill ${role === "agent" ? "agent" : "user"}">Perfil: ${roleLabel(role)}</span>
-          <span class="pill gray">${visibleCount} artigos disponíveis para este perfil</span>
+        <div>
+          <div class="role-selector">
+            <button class="${role === "user" ? "active" : ""}" onclick="setRole('user')">♡ Sou utilizador</button>
+            <button class="${role === "agent" ? "active" : ""}" onclick="setRole('agent')">♧ Sou agente</button>
+          </div>
+          <div class="meta-row">
+            <span class="pill ${role === "agent" ? "agent" : "user"}">Perfil: ${roleLabel(role)}</span>
+            <span class="pill gray">${visibleCount} artigos disponíveis</span>
+          </div>
         </div>
       </div>
 
-      <div class="grid two">
-        <div>
-          <div class="search-wrap">
-            <input id="searchInput" class="search-input" autocomplete="off" placeholder="Escreve aqui o problema que queres resolver..." oninput="handleSearch()">
-          </div>
+      <div class="search-row">
+        <div class="search-box">
+          <span class="search-symbol">⌕</span>
+          <input id="searchInput" class="search-input" autocomplete="off" placeholder="Que problema queres resolver?" oninput="handleSearch()">
+        </div>
+        <button onclick="handleSearch()">Pesquisar</button>
+      </div>
 
-          <div id="results" class="results">
-            <div class="empty">Começa a escrever para ver sugestões da base de conhecimento.</div>
-          </div>
-
-          <div class="card" style="margin-top:18px">
-            <h3>Não encontraste solução?</h3>
-            <p class="muted">Comunica o problema ao suporte. Podes também adicionar uma imagem para depois anexar ao email.</p>
-
-            <label>Adicionar imagem do erro</label>
-            <input type="file" id="errorImage" accept="image/*" onchange="previewImage(event)">
-            <img id="imagePreview" class="image-preview" alt="Pré-visualização da imagem">
-
-            <div class="notice warn">
-              Por limitação do browser, o botão de email não anexa automaticamente a imagem. Depois de abrir o email, anexa manualmente a imagem selecionada.
-            </div>
-
-            <div class="actions">
-              <a id="supportMail" class="btn warn" href="${buildMailto()}">Enviar email para suporte</a>
-            </div>
-          </div>
+      <div class="support-card">
+        <div class="support-copy">
+          <h3>Não encontraste solução?</h3>
+          <p>Comunica o problema ao suporte. Podes detalhar melhor a questão e adicionar uma imagem para anexar manualmente ao email.</p>
         </div>
 
-        <div id="articlePanel" class="card article-view">
+        <div class="support-form">
+          <h3>Detalhe adicional</h3>
+          <textarea id="supportDetail" class="support-detail" placeholder="Opcional: descreve melhor o problema, passos feitos, documento BC, mensagem de erro ou impacto operacional..." oninput="refreshSupportMailLink()"></textarea>
+
+          <div class="attachment-row">
+            <div>
+              <input type="file" id="errorImage" accept="image/*" onchange="previewImage(event)">
+              <p class="small-note">A imagem deve ser anexada manualmente no email aberto.</p>
+            </div>
+            <a id="supportMail" class="btn warn" href="${buildMailto()}">✉ Enviar email para suporte</a>
+          </div>
+          <img id="imagePreview" class="image-preview" alt="Pré-visualização da imagem">
+        </div>
+      </div>
+    </section>
+
+    <section class="content-grid" id="base">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Sugestões para ti</h2>
+        </div>
+        <div id="results" class="results">
+          <div class="empty">Começa a escrever para ver sugestões da base de conhecimento.</div>
+        </div>
+      </div>
+
+      <div class="panel article-view">
+        <div class="panel-head">
+          <h2>Artigo selecionado</h2>
+          <span class="pill">Base de conhecimento</span>
+        </div>
+        <div id="articlePanel">
           <div class="empty">Seleciona uma sugestão para ler a solução.</div>
         </div>
       </div>
-    </div>
+    </section>
   `;
 }
 
@@ -233,8 +269,7 @@ function handleSearch() {
   const role = roleFromStorage();
   const query = currentQuery();
   const resultsEl = document.getElementById("results");
-  const mail = document.getElementById("supportMail");
-  if (mail) mail.href = buildMailto();
+  refreshSupportMailLink();
 
   if (!query || query.length < 2) {
     resultsEl.innerHTML = `<div class="empty">Começa a escrever para ver sugestões da base de conhecimento.</div>`;
@@ -247,7 +282,7 @@ function handleSearch() {
     resultsEl.innerHTML = `
       <div class="notice warn">
         Não encontrei uma solução próxima na base de conhecimento para o perfil <strong>${roleLabel(role)}</strong>.
-        Usa o botão de email para encaminhar o tema para o suporte.
+        Revê o detalhe adicional acima e usa o botão de email para encaminhar o tema para o suporte.
       </div>
     `;
     return;
@@ -255,15 +290,13 @@ function handleSearch() {
 
   resultsEl.innerHTML = results.map((r, idx) => `
     <div class="result-card" onclick="showArticle('${r.article.id}')">
-      <h3>${escapeHtml(r.article.title)}</h3>
-      <div class="meta-row">
-        <span class="pill">${escapeHtml(r.article.category)}</span>
-        <span class="pill gray">${escapeHtml(r.article.id)}</span>
-        <span class="pill ${role === "agent" ? "agent" : "user"}">${roleLabel(role)}</span>
+      <div class="result-icon">▤</div>
+      <div>
+        <h3>${escapeHtml(r.article.title)}</h3>
+        <p>${escapeHtml(r.article.category)} · ${escapeHtml(r.article.id)}</p>
+        <div class="confidence"><div style="width:${r.confidence}%"></div></div>
       </div>
-      <p>${escapeHtml(r.article.problem || r.article.solution || "")}</p>
-      <div class="confidence"><div style="width:${r.confidence}%"></div></div>
-      <p class="muted">Proximidade estimada: ${r.confidence}%</p>
+      <div class="chevron">›</div>
     </div>
   `).join("");
 
@@ -277,24 +310,26 @@ function showArticle(id, scroll = true) {
 
   const panel = document.getElementById("articlePanel");
   panel.innerHTML = `
-    <h2>${escapeHtml(article.title)}</h2>
-    <div class="meta-row">
-      <span class="pill gray">${escapeHtml(article.id)}</span>
-      <span class="pill">${escapeHtml(article.category || "Sem categoria")}</span>
-      ${article.user ? `<span class="pill user">Utilizador</span>` : ""}
-      ${article.agent ? `<span class="pill agent">Agente</span>` : ""}
-    </div>
+    <div class="article-body">
+      <h2>${escapeHtml(article.title)}</h2>
+      <div class="meta-row">
+        <span class="pill gray">${escapeHtml(article.id)}</span>
+        <span class="pill">${escapeHtml(article.category || "Sem categoria")}</span>
+        ${article.user ? `<span class="pill user">Utilizador</span>` : ""}
+        ${article.agent ? `<span class="pill agent">Agente</span>` : ""}
+      </div>
 
-    ${sectionHtml("Problema", article.problem)}
-    ${sectionHtml("Diagnóstico", article.diagnosis)}
-    ${role === "agent" ? sectionHtml("Causa provável", article.cause) : ""}
-    ${sectionHtml("Solução", article.solution)}
-    ${sectionHtml("Como proceder", article.steps)}
-    ${sectionHtml("Validação final", article.validation)}
-    ${role === "agent" ? sectionHtml("Notas", article.notes) : ""}
+      ${sectionHtml("Problema", article.problem)}
+      ${sectionHtml("Diagnóstico", article.diagnosis)}
+      ${role === "agent" ? sectionHtml("Causa provável", article.cause) : ""}
+      ${sectionHtml("Solução", article.solution)}
+      ${sectionHtml("Como proceder", article.steps)}
+      ${sectionHtml("Validação final", article.validation)}
+      ${role === "agent" ? sectionHtml("Notas", article.notes) : ""}
 
-    <div class="actions">
-      <a class="btn secondary" href="${buildMailto()}">Ainda preciso de apoio</a>
+      <div class="actions">
+        <a class="btn secondary" href="${buildMailto()}">Ainda preciso de apoio</a>
+      </div>
     </div>
   `;
 
@@ -341,7 +376,7 @@ function renderConfig() {
   const unlocked = sessionStorage.getItem("ApoioBusinessCentral.configUnlocked") === "true";
   if (!unlocked) {
     root.innerHTML = `
-      <div class="config-box card">
+      <div class="config-layout"><div class="config-card">
         <h2>Configuração</h2>
         <p class="muted">Página protegida por password para importar/exportar a base de conhecimento.</p>
 
@@ -356,7 +391,7 @@ function renderConfig() {
         <div class="notice warn">
           Esta password é apenas uma proteção simples de interface. Em GitHub Pages não existe autenticação real.
         </div>
-      </div>
+      </div></div>
     `;
     return;
   }
@@ -366,8 +401,8 @@ function renderConfig() {
   const agentCount = kb.filter(a => a.agent).length;
 
   root.innerHTML = `
-    <div class="config-box">
-      <div class="card">
+    <div class="config-layout">
+      <div class="config-card">
         <h2>Configuração da base de conhecimento</h2>
         <p class="muted">Importa ou exporta a base de conhecimento em JSON.</p>
 
@@ -385,13 +420,13 @@ function renderConfig() {
         </div>
       </div>
 
-      <div class="card" style="margin-top:18px">
+      <div class="config-card">
         <h3>Importar JSON</h3>
         <p class="muted">A importação substitui a base local guardada neste browser.</p>
         <input type="file" accept="application/json,.json" onchange="importKbFile(this.files[0])">
       </div>
 
-      <div class="card" style="margin-top:18px">
+      <div class="config-card">
         <h3>Editar JSON manualmente</h3>
         <p class="muted">Área avançada. Usa apenas para ajustes rápidos.</p>
         <textarea id="kbJson">${escapeHtml(JSON.stringify(kb, null, 2))}</textarea>

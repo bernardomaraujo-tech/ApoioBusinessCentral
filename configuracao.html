@@ -7,21 +7,55 @@
   <link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <div>
-        <h1>Configuração</h1>
-        <p>Importação e exportação da base de conhecimento.</p>
-      </div>
-      <nav>
-        <a href="index.html">Página principal</a>
-      </nav>
-    </div>
-  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="menu-btn" aria-label="Menu">☰</button>
 
-  <main>
-    <div id="configApp"></div>
-  </main>
+      <nav class="side-nav">
+        <a class="side-link" href="index.html">
+          <span class="side-icon">⌕</span>
+          <span>Pesquisa</span>
+        </a>
+        <a class="side-link" href="index.html#base">
+          <span class="side-icon">☷</span>
+          <span>Base<br>conhecimento</span>
+        </a>
+        <a class="side-link active" href="configuracao.html">
+          <span class="side-icon">⚙</span>
+          <span>Configuração</span>
+        </a>
+      </nav>
+
+      <div class="side-bottom">
+        <a class="side-link" href="mailto:suporteit@quilaban.pt">
+          <span class="side-icon">?</span>
+          <span>Apoio</span>
+        </a>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>ApoioBusinessCentral</h1>
+      </div>
+
+      <div class="userbar">
+        <span class="bell">⌾</span>
+        <span class="avatar">AF</span>
+        <div class="user-meta">
+          <strong>Configuração</strong>
+          <span>Base conhecimento</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="workspace">
+        <div id="configApp"></div>
+      </div>
+    </main>
+  </div>
 
   <script src="assets/kb-data.js"></script>
   <script src="assets/app.js"></script>
