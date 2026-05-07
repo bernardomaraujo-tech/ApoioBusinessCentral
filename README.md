@@ -1,110 +1,86 @@
-# ApoioBusinessCentral
+# ApoioBusinessCentral — GitHub Pages Edition
 
-Plataforma interna de apoio, suporte, base de conhecimento, automação e assistência por IA para processos relacionados com **Microsoft Dynamics 365 Business Central**.
+Versão simplificada da **ApoioBusinessCentral**, desenhada para funcionar apenas com **GitHub + GitHub Pages**, sem backend, sem servidores externos e sem integrações reais.
 
-## Objetivo
+## O que esta versão faz
 
-A **ApoioBusinessCentral** centraliza pedidos internos de suporte e melhoria sobre Business Central, usando:
+- Funciona como aplicação web estática.
+- Corre diretamente no GitHub Pages.
+- Gere uma base de conhecimento local.
+- Permite criar, editar e pesquisar artigos KB.
+- Permite criar pedidos internos de apoio.
+- Sugere artigos com base no texto do pedido.
+- Quando não encontra artigo aplicável, indica encaminhamento para agente.
+- Guarda dados no browser via `localStorage`.
+- Permite exportar/importar dados em JSON.
+- Permite exportar artigos em Markdown.
 
-- Jira Service Management / Service Collection para portal, tickets, workflow, filas, SLAs e reporting;
-- Confluence para a **KB ApoioBusinessCentral**;
-- automações Atlassian para triagem, encaminhamento e notificações;
-- uma Integration API leve para contexto Business Central, webhooks, migração da KB e integrações futuras;
-- IA restrita à base de conhecimento validada.
+## O que foi removido
 
-## Baseline MVP
+- FastAPI/backend.
+- Workers.
+- Azure/App Service.
+- Integração real com Jira Service Management.
+- Integração real com Confluence.
+- Integração real com Business Central.
+- Webhooks.
+- OAuth.
+- Secrets.
+- GitHub Actions obrigatório.
+- Infraestrutura Bicep/Terraform.
 
-| Parâmetro | Valor |
-|---|---:|
-| Agentes JSM | 3 a 5 |
-| Utilizadores internos no portal | Até 100 |
-| Editores / validadores KB | 2 |
-| Idioma KB | PT-PT |
-| Empresas BC suportadas | 3 |
-| Ambientes BC suportados | 3 |
-| Modelo | Organização interna única |
-| SLA inicial | Resposta até 24h |
-| IA | Apenas com base na KB fornecida |
-| Sem artigo aplicável | Encaminhar para agente |
-| Auditoria avançada | Fora do MVP |
+## Limitação principal
 
-## Estrutura do repositório
+Como o GitHub Pages é hosting estático, esta app **não tem base de dados central**.  
+Os dados ficam guardados no browser de cada utilizador.
+
+Para partilhar/guardar dados entre pessoas, usar:
+
+1. **Exportar JSON**;
+2. guardar o ficheiro no repositório ou numa pasta partilhada;
+3. outro utilizador faz **Importar JSON**.
+
+## Publicação no GitHub Pages
+
+Configuração recomendada:
 
 ```text
-apoio-business-central/
-├── docs/                    # Documentação funcional, técnica, operação e rollout
-├── adr/                     # Architecture Decision Records
-├── config/                  # Configurações funcionais versionadas
-├── knowledge-base/          # Templates, exemplos e mapeamento de migração da KB
-├── services/                # Serviços aplicacionais
-├── workers/                 # Workers assíncronos
-├── scripts/                 # Bootstrap, deploy, migração e validação
-├── samples/                 # Exemplos de payloads e chamadas API
-├── tests/                   # Testes globais
-├── infra/                   # Infraestrutura como código
-└── .github/workflows/       # CI/CD
+Settings → Pages
+Source: Deploy from a branch
+Branch: main
+Folder: / (root)
 ```
 
-## Arranque rápido local
+A aplicação abre em:
 
-### 1. Configurar ambiente
-
-```bash
-cp .env.example .env
+```text
+https://<utilizador>.github.io/ApoioBusinessCentral/
 ```
 
-Editar `.env` com valores reais. Nunca guardar secrets no GitHub.
+## Estrutura
 
-### 2. Executar Integration API
-
-```bash
-cd services/integration-api
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8080
+```text
+.
+├── index.html
+├── README.md
+├── docs/
+│   ├── github-pages-architecture.md
+│   ├── user-guide.md
+│   └── limitations.md
+├── templates/
+│   └── kb-article-template.md
+└── data/
+    └── sample-export.json
 ```
 
-### 3. Testar healthcheck
+## Regra de IA/sugestão
 
-```bash
-curl http://localhost:8080/health
+Esta versão **não usa IA generativa real**.  
+Usa apenas pesquisa e scoring local sobre os artigos da KB.
+
+Regra:
+
+```text
+Se existir artigo KB relevante → sugere artigo.
+Se não existir artigo relevante → encaminhar para agente.
 ```
-
-### 4. Executar testes
-
-```bash
-cd services/integration-api
-pytest
-```
-
-## Componentes principais
-
-| Componente | Estado | Descrição |
-|---|---|---|
-| Documentação funcional | Scaffold pronto | Request types, workflow, SLAs e operação. |
-| Documentação técnica | Scaffold pronto | Integrações Jira, Confluence, BC e webhooks. |
-| Integration API | Base pronta | FastAPI com endpoints de health, Jira webhook, BC webhook e KB draft. |
-| KB templates | Pronto | Template padrão de artigo e artigo exemplo. |
-| Config YAML | Pronto | Request types, prioridade, SLAs, filas e taxonomia. |
-| GitHub Actions | Pronto | CI base para validar Python e estrutura. |
-
-## Regras fundamentais de IA
-
-A IA da ApoioBusinessCentral deve seguir estas regras:
-
-1. responder apenas com base na KB ApoioBusinessCentral validada;
-2. não inventar procedimentos;
-3. se não existir artigo aplicável, encaminhar para agente;
-4. nunca executar alterações no Business Central;
-5. nunca publicar artigos automaticamente;
-6. indicar sempre a fonte interna usada quando gerar draft.
-
-## Próximo passo
-
-1. Criar repositório GitHub `apoio-business-central`.
-2. Fazer upload destes ficheiros.
-3. Configurar secrets no GitHub Actions.
-4. Validar request types e campos com a equipa.
-5. Migrar os primeiros artigos da KB.
-6. Criar projeto Jira Service Management e espaço Confluence.

@@ -1,0 +1,1429 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ApoioBusinessCentral</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #17202a;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --brand: #1f5eff;
+      --brand-dark: #1743b8;
+      --ok: #168a45;
+      --warn: #a16207;
+      --danger: #b42318;
+      --soft: #eef4ff;
+      --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 18px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand span {
+      display: block;
+      color: #cbd5e1;
+      font-size: 13px;
+      margin-top: 3px;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      color: #dbeafe;
+      text-decoration: none;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    nav a.active, nav a:hover {
+      background: rgba(255,255,255,0.14);
+      color: white;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 28px auto;
+      padding: 0 24px 48px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card h2, .card h3 {
+      margin-top: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; }
+    .hidden { display: none !important; }
+
+    .metric {
+      padding: 20px;
+      border-radius: var(--radius);
+      background: white;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .metric strong {
+      font-size: 34px;
+      display: block;
+      letter-spacing: -0.04em;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #344054;
+      margin: 14px 0 6px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: white;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    button, .button {
+      border: 0;
+      background: var(--brand);
+      color: white;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover, .button:hover { background: var(--brand-dark); }
+    button.secondary { background: #eef2f7; color: #17202a; }
+    button.secondary:hover { background: #e4e9f1; }
+    button.danger { background: var(--danger); }
+    button.ok { background: var(--ok); }
+    button.warn { background: var(--warn); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #344054;
+      font-size: 13px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 2px 4px 2px 0;
+    }
+
+    .pill.ok { background: #ecfdf3; color: #067647; }
+    .pill.warn { background: #fffaeb; color: #a15c07; }
+    .pill.danger { background: #fef3f2; color: #b42318; }
+    .pill.gray { background: #f2f4f7; color: #344054; }
+
+    .suggestion {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 10px 0;
+      background: #fbfdff;
+    }
+
+    .suggestion strong { display: block; margin-bottom: 4px; }
+    .confidence {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .confidence > div {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+    }
+
+    .notice {
+      border-left: 4px solid var(--brand);
+      background: var(--soft);
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .notice.warn { border-left-color: var(--warn); background: #fffaeb; }
+    .notice.danger { border-left-color: var(--danger); background: #fef3f2; }
+    .notice.ok { border-left-color: var(--ok); background: #ecfdf3; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .article-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .article-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      padding: 15px;
+    }
+
+    .article-card h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    .article-card p { margin: 8px 0; }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 40px 16px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 18px;
+      overflow: auto;
+      z-index: 100;
+    }
+
+    .modal {
+      width: min(980px, 100%);
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+      padding: 22px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal-header h2 { margin: 0; }
+
+    code, pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    pre {
+      padding: 14px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 900px) {
+      .grid.cols-2, .grid.cols-3, .grid.cols-4, .split {
+        grid-template-columns: 1fr;
+      }
+      header { position: static; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <h1>ApoioBusinessCentral</h1>
+        <span>GitHub Pages Edition · KB local · pedidos internos · sem backend</span>
+      </div>
+      <nav id="nav">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#novo-pedido">Novo pedido</a>
+        <a href="#pedidos">Pedidos</a>
+        <a href="#kb">Base de conhecimento</a>
+        <a href="#import-export">Importar / Exportar</a>
+        <a href="#sobre">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-dashboard" class="view"></section>
+    <section id="view-novo-pedido" class="view hidden"></section>
+    <section id="view-pedidos" class="view hidden"></section>
+    <section id="view-kb" class="view hidden"></section>
+    <section id="view-import-export" class="view hidden"></section>
+    <section id="view-sobre" class="view hidden"></section>
+  </main>
+
+  <div id="modal-root"></div>
+
+  <script>
+    const STORAGE_KEY = "apoioBusinessCentral.v1";
+
+    const DEFAULT_DATA = {
+      version: "1.0",
+      settings: {
+        companies: ["Empresa 01", "Empresa 02", "Empresa 03"],
+        environments: ["Produção", "UAT", "Teste"],
+        slaHours: 24
+      },
+      articles: [
+        {
+          id: "ABC-KB-001",
+          title: "Executar fila de tarefas antes da comunicação à AGT",
+          category: "Integrações",
+          visibility: "Agente",
+          status: "Publicado",
+          summary: "Procedimento para executar a fila de tarefas necessária antes da comunicação de documentos à AGT.",
+          problem: "Antes de comunicar documentos à AGT, pode ser necessário executar a tarefa responsável pelo envio ou processamento da comunicação eletrónica.",
+          diagnosis: "Validar em Movs. Fila Tarefas se a tarefa relacionada com AGT está disponível e se pode ser executada.",
+          solution: "Executar a tarefa em primeiro plano antes de avançar para a comunicação dos documentos.",
+          procedure: [
+            "Abrir a pesquisa do Business Central.",
+            "Procurar por Movs. Fila Tarefas.",
+            "Localizar a tarefa AGT.",
+            "Selecionar a linha.",
+            "Clicar em Correr uma vez em primeiro plano.",
+            "Aguardar a conclusão."
+          ],
+          validation: [
+            "A tarefa terminou sem erro.",
+            "O processo de comunicação fica preparado para avançar."
+          ],
+          notes: "Artigo de exemplo. Rever antes de usar em produção.",
+          labels: ["agt", "faturação", "integrações", "business-central"]
+        },
+        {
+          id: "ABC-KB-002",
+          title: "Pedido de acesso ou alteração de permissões no Business Central",
+          category: "Acesso e permissões",
+          visibility: "Utilizador",
+          status: "Publicado",
+          summary: "Como pedir criação, alteração ou validação de acessos no Business Central.",
+          problem: "O utilizador não consegue aceder ao Business Central ou não tem permissões suficientes para executar uma tarefa.",
+          diagnosis: "Confirmar utilizador afetado, empresa, ambiente, perfil necessário e processo que está bloqueado.",
+          solution: "Criar pedido com dados completos para validação por agente.",
+          procedure: [
+            "Criar pedido do tipo Acesso / permissões.",
+            "Indicar empresa e ambiente.",
+            "Indicar utilizador afetado.",
+            "Descrever o perfil ou tarefa necessária.",
+            "Anexar evidência se existir erro."
+          ],
+          validation: [
+            "Utilizador consegue entrar no ambiente correto.",
+            "Permissões permitem executar a tarefa prevista."
+          ],
+          notes: "Alterações de permissões devem ser validadas antes de aplicar em produção.",
+          labels: ["acessos", "permissões", "utilizadores"]
+        },
+        {
+          id: "ABC-KB-003",
+          title: "Erro funcional com mensagem no Business Central",
+          category: "Erros conhecidos",
+          visibility: "Utilizador",
+          status: "Publicado",
+          summary: "Como reportar corretamente um erro funcional no Business Central.",
+          problem: "O utilizador encontra uma mensagem de erro ao executar uma ação no Business Central.",
+          diagnosis: "Identificar página, documento, empresa, ambiente, mensagem de erro e passos para reproduzir.",
+          solution: "Criar pedido com evidência suficiente para análise pelo agente.",
+          procedure: [
+            "Copiar ou capturar a mensagem de erro.",
+            "Identificar o documento ou registo afetado.",
+            "Indicar os passos executados antes do erro.",
+            "Criar pedido do tipo Erro funcional."
+          ],
+          validation: [
+            "O agente consegue reproduzir ou compreender o erro.",
+            "A resposta fica associada ao pedido."
+          ],
+          notes: "Sem mensagem de erro ou passos, o pedido pode voltar para A aguardar informação.",
+          labels: ["erro", "diagnóstico", "business-central"]
+        },
+        {
+          id: "ABC-KB-004",
+          title: "Pedido com impacto ou bloqueio operacional",
+          category: "Operação",
+          visibility: "Utilizador",
+          status: "Publicado",
+          summary: "Critérios para classificar um pedido como impacto operacional ou bloqueio.",
+          problem: "Um processo está bloqueado ou afeta uma equipa/área operacional.",
+          diagnosis: "Confirmar se o impacto é individual, de equipa, de operação ou crítico fiscal/legal.",
+          solution: "Registar o pedido com impacto e urgência corretos para prioridade adequada.",
+          procedure: [
+            "Criar pedido com resumo objetivo.",
+            "Escolher impacto correto.",
+            "Escolher urgência correta.",
+            "Indicar processo bloqueado.",
+            "Adicionar documento BC ou screenshot, se aplicável."
+          ],
+          validation: [
+            "Pedido ficou com prioridade coerente.",
+            "Agente consegue perceber o bloqueio sem nova pergunta."
+          ],
+          notes: "O SLA inicial da plataforma é resposta até 24h.",
+          labels: ["prioridade", "bloqueio", "operação"]
+        }
+      ],
+      requests: []
+    };
+
+    let data = loadData();
+    let editingArticleId = null;
+    let lastSuggestions = [];
+
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return structuredClone(DEFAULT_DATA);
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          ...structuredClone(DEFAULT_DATA),
+          ...parsed,
+          settings: { ...DEFAULT_DATA.settings, ...(parsed.settings || {}) },
+          articles: parsed.articles || DEFAULT_DATA.articles,
+          requests: parsed.requests || []
+        };
+      } catch {
+        return structuredClone(DEFAULT_DATA);
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function resetData() {
+      if (!confirm("Isto vai apagar os dados locais deste browser e repor os exemplos. Continuar?")) return;
+      data = structuredClone(DEFAULT_DATA);
+      saveData();
+      render();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(text) {
+      return String(text || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function tokenize(text) {
+      const stop = new Set(["para","com","sem","uma","uns","das","dos","que","por","como","sobre","este","esta","isto","mais","menos","no","na","nos","nas","de","da","do","e","o","a","os","as","ao","em","um"]);
+      return normalize(text)
+        .replace(/[^a-z0-9\s-]/g, " ")
+        .split(/\s+/)
+        .map(t => t.trim())
+        .filter(t => t.length > 2 && !stop.has(t));
+    }
+
+    function articleText(article) {
+      return [
+        article.title,
+        article.category,
+        article.visibility,
+        article.status,
+        article.summary,
+        article.problem,
+        article.diagnosis,
+        article.solution,
+        (article.procedure || []).join(" "),
+        (article.validation || []).join(" "),
+        article.notes,
+        (article.labels || []).join(" ")
+      ].join(" ");
+    }
+
+    function searchArticles(query) {
+      const tokens = tokenize(query);
+      if (!tokens.length) return [];
+
+      return data.articles.map(article => {
+        const title = normalize(article.title);
+        const summary = normalize(article.summary);
+        const category = normalize(article.category);
+        const labels = normalize((article.labels || []).join(" "));
+        const body = normalize(articleText(article));
+        let score = 0;
+
+        for (const token of tokens) {
+          if (title.includes(token)) score += 5;
+          if (summary.includes(token)) score += 4;
+          if (category.includes(token)) score += 3;
+          if (labels.includes(token)) score += 3;
+          if (body.includes(token)) score += 1;
+        }
+
+        const confidence = Math.min(100, Math.round((score / Math.max(6, tokens.length * 6)) * 100));
+
+        return { article, score, confidence };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score || b.confidence - a.confidence)
+      .slice(0, 5);
+    }
+
+    function calculatePriority(impact, urgency) {
+      const matrix = {
+        individual: { baixa: "P4", media: "P4", alta: "P3", imediata: "P3" },
+        equipa: { baixa: "P4", media: "P3", alta: "P2", imediata: "P2" },
+        operacao: { baixa: "P3", media: "P2", alta: "P2", imediata: "P1" },
+        empresa: { baixa: "P2", media: "P2", alta: "P1", imediata: "P1" },
+        legal_fiscal_critico: { baixa: "P2", media: "P1", alta: "P1", imediata: "P1" }
+      };
+      return matrix[impact]?.[urgency] || "P3";
+    }
+
+    function priorityPill(priority) {
+      const cls = priority === "P1" ? "danger" : priority === "P2" ? "warn" : priority === "P3" ? "" : "gray";
+      return `<span class="pill ${cls}">${priority}</span>`;
+    }
+
+    function statusPill(status) {
+      const cls = status === "Resolvido" || status === "Fechado" ? "ok" : status === "A aguardar informação" ? "warn" : "";
+      return `<span class="pill ${cls}">${escapeHtml(status)}</span>`;
+    }
+
+    function dueDate(hours = 24) {
+      const d = new Date();
+      d.setHours(d.getHours() + Number(hours || 24));
+      return d.toISOString();
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      return new Intl.DateTimeFormat("pt-PT", {
+        dateStyle: "short",
+        timeStyle: "short"
+      }).format(new Date(value));
+    }
+
+    function downloadFile(filename, content, type = "text/plain") {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function articleToMarkdown(article) {
+      return `# ${article.title}
+
+## Metadados
+
+| Campo | Valor |
+|---|---|
+| ID | ${article.id} |
+| Categoria | ${article.category} |
+| Visibilidade | ${article.visibility} |
+| Estado | ${article.status} |
+| Labels | ${(article.labels || []).join(", ")} |
+
+## Resumo
+
+${article.summary || ""}
+
+## Problema
+
+${article.problem || ""}
+
+## Diagnóstico
+
+${article.diagnosis || ""}
+
+## Solução
+
+${article.solution || ""}
+
+## Procedimento
+
+${(article.procedure || []).map((item, idx) => `${idx + 1}. ${item}`).join("\n")}
+
+## Validação final
+
+${(article.validation || []).map(item => `- ${item}`).join("\n")}
+
+## Notas
+
+${article.notes || ""}
+`;
+    }
+
+    function exportAllData() {
+      const payload = {
+        version: "1.0",
+        exportedAt: new Date().toISOString(),
+        settings: data.settings,
+        articles: data.articles,
+        requests: data.requests
+      };
+      downloadFile("apoio-business-central-export.json", JSON.stringify(payload, null, 2), "application/json");
+    }
+
+    function exportAllMarkdown() {
+      const content = data.articles.map(articleToMarkdown).join("\n\n---\n\n");
+      downloadFile("apoio-business-central-kb.md", content, "text/markdown");
+    }
+
+    function importJsonFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if (!Array.isArray(imported.articles)) throw new Error("Ficheiro sem lista de artigos.");
+          if (!confirm("Importar este ficheiro vai substituir os dados locais deste browser. Continuar?")) return;
+          data = {
+            version: imported.version || "1.0",
+            settings: { ...DEFAULT_DATA.settings, ...(imported.settings || {}) },
+            articles: imported.articles || [],
+            requests: imported.requests || []
+          };
+          saveData();
+          render();
+          alert("Importação concluída.");
+        } catch (error) {
+          alert("Erro ao importar JSON: " + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function nextArticleId() {
+      const nums = data.articles.map(a => Number(String(a.id || "").replace(/\D/g, ""))).filter(Boolean);
+      const next = (Math.max(0, ...nums) + 1).toString().padStart(3, "0");
+      return `ABC-KB-${next}`;
+    }
+
+    function nextRequestId() {
+      const now = new Date();
+      const stamp = now.toISOString().replace(/\D/g, "").slice(0, 14);
+      return `ABC-REQ-${stamp}`;
+    }
+
+    function setView(view) {
+      document.querySelectorAll(".view").forEach(el => el.classList.add("hidden"));
+      const target = document.getElementById(`view-${view}`);
+      if (target) target.classList.remove("hidden");
+
+      document.querySelectorAll("nav a").forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === `#${view}`);
+      });
+    }
+
+    function currentView() {
+      const hash = window.location.hash.replace("#", "");
+      const allowed = ["dashboard", "novo-pedido", "pedidos", "kb", "import-export", "sobre"];
+      return allowed.includes(hash) ? hash : "dashboard";
+    }
+
+    window.addEventListener("hashchange", () => {
+      render();
+    });
+
+    function render() {
+      renderDashboard();
+      renderNewRequest();
+      renderRequests();
+      renderKb();
+      renderImportExport();
+      renderAbout();
+      setView(currentView());
+    }
+
+    function renderDashboard() {
+      const open = data.requests.filter(r => !["Resolvido", "Fechado"].includes(r.status)).length;
+      const noKb = data.requests.filter(r => !r.bestArticleId).length;
+      const p1 = data.requests.filter(r => r.priority === "P1").length;
+      const p2 = data.requests.filter(r => r.priority === "P2").length;
+
+      document.getElementById("view-dashboard").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Dashboard</h2>
+            <p class="muted">Resumo local deste browser. Sem backend e sem base de dados central.</p>
+          </div>
+          <a class="button" href="#novo-pedido">Criar pedido</a>
+        </div>
+
+        <div class="notice">
+          Esta versão funciona apenas com GitHub Pages. Os dados ficam guardados localmente no browser. Usa export/import JSON para partilhar ou fazer backup.
+        </div>
+
+        <div class="grid cols-4">
+          <div class="metric"><strong>${data.requests.length}</strong><span>Pedidos registados</span></div>
+          <div class="metric"><strong>${open}</strong><span>Pedidos em aberto</span></div>
+          <div class="metric"><strong>${data.articles.length}</strong><span>Artigos KB</span></div>
+          <div class="metric"><strong>${noKb}</strong><span>Pedidos sem KB associada</span></div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:18px">
+          <div class="card">
+            <h3>Prioridades</h3>
+            <table>
+              <tr><th>Prioridade</th><th>Total</th></tr>
+              <tr><td>${priorityPill("P1")}</td><td>${p1}</td></tr>
+              <tr><td>${priorityPill("P2")}</td><td>${p2}</td></tr>
+              <tr><td>${priorityPill("P3")}</td><td>${data.requests.filter(r => r.priority === "P3").length}</td></tr>
+              <tr><td>${priorityPill("P4")}</td><td>${data.requests.filter(r => r.priority === "P4").length}</td></tr>
+            </table>
+          </div>
+
+          <div class="card">
+            <h3>Próximos passos recomendados</h3>
+            <ol>
+              <li>Carregar/editar artigos reais da tua KB.</li>
+              <li>Criar pedidos de teste com casos reais.</li>
+              <li>Validar se a sugestão de artigos é útil.</li>
+              <li>Exportar JSON regularmente como backup.</li>
+              <li>Guardar artigos finais em Markdown no GitHub.</li>
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectOptions(values, selected = "") {
+      return values.map(v => `<option value="${escapeHtml(v)}" ${v === selected ? "selected" : ""}>${escapeHtml(v)}</option>`).join("");
+    }
+
+    function renderNewRequest() {
+      document.getElementById("view-novo-pedido").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Novo pedido</h2>
+            <p class="muted">Cria um pedido interno e pesquisa a KB antes de encaminhar para agente.</p>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <h3>Dados do pedido</h3>
+
+            <div class="grid cols-2">
+              <div>
+                <label>Empresa BC</label>
+                <select id="req-company">${selectOptions(data.settings.companies)}</select>
+              </div>
+              <div>
+                <label>Ambiente BC</label>
+                <select id="req-env">${selectOptions(data.settings.environments)}</select>
+              </div>
+            </div>
+
+            <label>Tipo de pedido</label>
+            <select id="req-type">
+              <option>Acesso / permissões / utilizadores</option>
+              <option>Erro funcional</option>
+              <option>Issue de configuração</option>
+              <option>Dados mestres</option>
+              <option>Financeiro / faturação / cobranças</option>
+              <option>Compras</option>
+              <option>Vendas</option>
+              <option>Logística / armazenagem / expedição</option>
+              <option>Integrações / importações / exportações</option>
+              <option>Pedido de melhoria / evolutivo</option>
+            </select>
+
+            <div class="grid cols-2">
+              <div>
+                <label>Impacto</label>
+                <select id="req-impact">
+                  <option value="individual">Individual</option>
+                  <option value="equipa">Equipa</option>
+                  <option value="operacao">Operação</option>
+                  <option value="empresa">Empresa</option>
+                  <option value="legal_fiscal_critico">Legal/fiscal crítico</option>
+                </select>
+              </div>
+              <div>
+                <label>Urgência</label>
+                <select id="req-urgency">
+                  <option value="baixa">Baixa</option>
+                  <option value="media">Média</option>
+                  <option value="alta">Alta</option>
+                  <option value="imediata">Imediata</option>
+                </select>
+              </div>
+            </div>
+
+            <label>Referência documento BC, se aplicável</label>
+            <input id="req-doc" placeholder="Ex.: FV/2026/00001, EC/2026/00010">
+
+            <label>Resumo</label>
+            <input id="req-summary" placeholder="Ex.: Erro ao registar fatura de venda">
+
+            <label>Descrição detalhada</label>
+            <textarea id="req-description" placeholder="Descreve o contexto, erro, passos e impacto operacional."></textarea>
+
+            <div class="actions">
+              <button onclick="analyzeRequest()">Analisar com base na KB</button>
+              <button class="secondary" onclick="clearRequestForm()">Limpar</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Resultado da análise</h3>
+            <div id="request-analysis">
+              <div class="empty">Preenche o pedido e clica em “Analisar com base na KB”.</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function requestFormValues() {
+      return {
+        company: document.getElementById("req-company").value,
+        environment: document.getElementById("req-env").value,
+        type: document.getElementById("req-type").value,
+        impact: document.getElementById("req-impact").value,
+        urgency: document.getElementById("req-urgency").value,
+        documentReference: document.getElementById("req-doc").value.trim(),
+        summary: document.getElementById("req-summary").value.trim(),
+        description: document.getElementById("req-description").value.trim()
+      };
+    }
+
+    function analyzeRequest() {
+      const values = requestFormValues();
+      if (!values.summary || !values.description) {
+        alert("Preenche pelo menos o resumo e a descrição.");
+        return;
+      }
+
+      const query = [values.type, values.summary, values.description, values.documentReference].join(" ");
+      lastSuggestions = searchArticles(query);
+      const priority = calculatePriority(values.impact, values.urgency);
+      const best = lastSuggestions[0];
+      const canSuggest = best && best.confidence >= 35;
+
+      const suggestionsHtml = canSuggest
+        ? lastSuggestions.map(item => `
+          <div class="suggestion">
+            <strong>${escapeHtml(item.article.title)}</strong>
+            <span class="pill">${escapeHtml(item.article.category)}</span>
+            <span class="pill gray">${escapeHtml(item.article.visibility)}</span>
+            <div class="confidence"><div style="width:${item.confidence}%"></div></div>
+            <p class="small muted">Confiança estimada: ${item.confidence}%</p>
+            <p>${escapeHtml(item.article.summary)}</p>
+            <div class="actions">
+              <button class="secondary" onclick="openArticle('${item.article.id}')">Ver artigo</button>
+              <button onclick="saveRequest('${item.article.id}')">Guardar pedido com este artigo</button>
+            </div>
+          </div>
+        `).join("")
+        : `
+          <div class="notice warn">
+            Não foi encontrado artigo KB com confiança suficiente. O pedido deve ser encaminhado para agente.
+          </div>
+          <button onclick="saveRequest('')" class="warn">Guardar e encaminhar para agente</button>
+        `;
+
+      document.getElementById("request-analysis").innerHTML = `
+        <p>Prioridade calculada: ${priorityPill(priority)}</p>
+        ${suggestionsHtml}
+      `;
+    }
+
+    function saveRequest(articleId) {
+      const values = requestFormValues();
+      if (!values.summary || !values.description) {
+        alert("Preenche resumo e descrição.");
+        return;
+      }
+
+      const priority = calculatePriority(values.impact, values.urgency);
+      const bestArticle = articleId ? data.articles.find(a => a.id === articleId) : null;
+
+      const request = {
+        id: nextRequestId(),
+        createdAt: new Date().toISOString(),
+        dueAt: dueDate(data.settings.slaHours),
+        status: "Novo",
+        priority,
+        ...values,
+        bestArticleId: bestArticle?.id || "",
+        bestArticleTitle: bestArticle?.title || "",
+        agentRouting: bestArticle ? "Sugerido artigo KB" : "Encaminhar para agente"
+      };
+
+      data.requests.unshift(request);
+      saveData();
+      alert("Pedido guardado.");
+      window.location.hash = "#pedidos";
+      render();
+    }
+
+    function clearRequestForm() {
+      renderNewRequest();
+    }
+
+    function renderRequests() {
+      const rows = data.requests.map(req => `
+        <tr>
+          <td><strong>${escapeHtml(req.id)}</strong><br><span class="small muted">${formatDate(req.createdAt)}</span></td>
+          <td>${escapeHtml(req.summary)}<br><span class="small muted">${escapeHtml(req.type)}</span></td>
+          <td>${priorityPill(req.priority)}</td>
+          <td>${statusPill(req.status)}</td>
+          <td>${escapeHtml(req.company)}<br><span class="small muted">${escapeHtml(req.environment)}</span></td>
+          <td>${req.bestArticleTitle ? escapeHtml(req.bestArticleTitle) : "<span class='pill warn'>Encaminhar agente</span>"}</td>
+          <td>${formatDate(req.dueAt)}</td>
+          <td>
+            <select onchange="updateRequestStatus('${req.id}', this.value)">
+              ${["Novo","Triagem","A aguardar informação","Em análise","Em execução","Em validação","Resolvido","Fechado"].map(s => `<option ${s === req.status ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+            <div class="actions">
+              <button class="secondary" onclick="viewRequest('${req.id}')">Ver</button>
+              <button class="danger" onclick="deleteRequest('${req.id}')">Apagar</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      document.getElementById("view-pedidos").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Pedidos</h2>
+            <p class="muted">Pedidos guardados neste browser.</p>
+          </div>
+          <a class="button" href="#novo-pedido">Novo pedido</a>
+        </div>
+
+        <div class="card">
+          ${data.requests.length ? `
+            <table>
+              <tr>
+                <th>ID</th><th>Pedido</th><th>Prioridade</th><th>Estado</th><th>Empresa/Ambiente</th><th>KB</th><th>SLA resposta</th><th>Ações</th>
+              </tr>
+              ${rows}
+            </table>
+          ` : `<div class="empty">Ainda não existem pedidos.</div>`}
+        </div>
+      `;
+    }
+
+    function updateRequestStatus(id, status) {
+      const req = data.requests.find(r => r.id === id);
+      if (!req) return;
+      req.status = status;
+      saveData();
+      render();
+    }
+
+    function deleteRequest(id) {
+      if (!confirm("Apagar este pedido?")) return;
+      data.requests = data.requests.filter(r => r.id !== id);
+      saveData();
+      render();
+    }
+
+    function viewRequest(id) {
+      const req = data.requests.find(r => r.id === id);
+      if (!req) return;
+      showModal(`
+        <div class="modal-header">
+          <h2>${escapeHtml(req.id)}</h2>
+          <button class="secondary" onclick="closeModal()">Fechar</button>
+        </div>
+        <p>${priorityPill(req.priority)} ${statusPill(req.status)}</p>
+        <table>
+          <tr><th>Campo</th><th>Valor</th></tr>
+          <tr><td>Resumo</td><td>${escapeHtml(req.summary)}</td></tr>
+          <tr><td>Descrição</td><td>${escapeHtml(req.description)}</td></tr>
+          <tr><td>Tipo</td><td>${escapeHtml(req.type)}</td></tr>
+          <tr><td>Empresa</td><td>${escapeHtml(req.company)}</td></tr>
+          <tr><td>Ambiente</td><td>${escapeHtml(req.environment)}</td></tr>
+          <tr><td>Documento BC</td><td>${escapeHtml(req.documentReference || "-")}</td></tr>
+          <tr><td>Artigo KB</td><td>${escapeHtml(req.bestArticleTitle || "Sem artigo aplicável — encaminhar agente")}</td></tr>
+          <tr><td>SLA resposta</td><td>${formatDate(req.dueAt)}</td></tr>
+        </table>
+      `);
+    }
+
+    function renderKb() {
+      document.getElementById("view-kb").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Base de conhecimento</h2>
+            <p class="muted">Artigos guardados localmente. Exporta Markdown para guardar no GitHub.</p>
+          </div>
+          <button onclick="openArticleEditor()">Novo artigo</button>
+        </div>
+
+        <div class="card">
+          <label>Pesquisar artigos</label>
+          <input id="kb-search" placeholder="Ex.: AGT, permissões, erro fatura, logística" oninput="renderArticleList(this.value)">
+          <div id="article-list" class="article-list" style="margin-top:16px"></div>
+        </div>
+      `;
+      renderArticleList("");
+    }
+
+    function renderArticleList(query = "") {
+      const container = document.getElementById("article-list");
+      if (!container) return;
+
+      const list = query.trim()
+        ? searchArticles(query).map(i => i.article)
+        : data.articles;
+
+      if (!list.length) {
+        container.innerHTML = `<div class="empty">Sem artigos encontrados.</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(article => `
+        <div class="article-card">
+          <h3>${escapeHtml(article.title)}</h3>
+          <span class="pill">${escapeHtml(article.category)}</span>
+          <span class="pill gray">${escapeHtml(article.visibility)}</span>
+          <span class="pill ok">${escapeHtml(article.status)}</span>
+          <p>${escapeHtml(article.summary)}</p>
+          <p class="small muted">Labels: ${(article.labels || []).map(l => `<span class="pill gray">${escapeHtml(l)}</span>`).join("")}</p>
+          <div class="actions">
+            <button class="secondary" onclick="openArticle('${article.id}')">Ver</button>
+            <button onclick="openArticleEditor('${article.id}')">Editar</button>
+            <button class="secondary" onclick="downloadArticle('${article.id}')">Markdown</button>
+            <button class="danger" onclick="deleteArticle('${article.id}')">Apagar</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openArticle(id) {
+      const article = data.articles.find(a => a.id === id);
+      if (!article) return;
+      showModal(`
+        <div class="modal-header">
+          <h2>${escapeHtml(article.title)}</h2>
+          <button class="secondary" onclick="closeModal()">Fechar</button>
+        </div>
+        <p>
+          <span class="pill">${escapeHtml(article.category)}</span>
+          <span class="pill gray">${escapeHtml(article.visibility)}</span>
+          <span class="pill ok">${escapeHtml(article.status)}</span>
+        </p>
+        <h3>Resumo</h3><p>${escapeHtml(article.summary)}</p>
+        <h3>Problema</h3><p>${escapeHtml(article.problem)}</p>
+        <h3>Diagnóstico</h3><p>${escapeHtml(article.diagnosis)}</p>
+        <h3>Solução</h3><p>${escapeHtml(article.solution)}</p>
+        <h3>Procedimento</h3>
+        <ol>${(article.procedure || []).map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ol>
+        <h3>Validação final</h3>
+        <ul>${(article.validation || []).map(p => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+        <h3>Notas</h3><p>${escapeHtml(article.notes)}</p>
+      `);
+    }
+
+    function openArticleEditor(id = "") {
+      editingArticleId = id || null;
+      const article = id ? data.articles.find(a => a.id === id) : {
+        id: nextArticleId(),
+        title: "",
+        category: "Erros conhecidos",
+        visibility: "Agente",
+        status: "Rascunho",
+        summary: "",
+        problem: "",
+        diagnosis: "",
+        solution: "",
+        procedure: [],
+        validation: [],
+        notes: "",
+        labels: []
+      };
+
+      showModal(`
+        <div class="modal-header">
+          <h2>${id ? "Editar artigo" : "Novo artigo"}</h2>
+          <button class="secondary" onclick="closeModal()">Fechar</button>
+        </div>
+
+        <div class="grid cols-2">
+          <div>
+            <label>ID</label>
+            <input id="art-id" value="${escapeHtml(article.id)}">
+          </div>
+          <div>
+            <label>Estado</label>
+            <select id="art-status">
+              ${["Rascunho","Publicado","Obsoleto"].map(s => `<option ${s === article.status ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+
+        <label>Título</label>
+        <input id="art-title" value="${escapeHtml(article.title)}">
+
+        <div class="grid cols-2">
+          <div>
+            <label>Categoria</label>
+            <select id="art-category">
+              ${["Acesso e permissões","Financeiro e faturação","Compras","Vendas","Logística e armazém","Integrações","Dados mestres","Erros conhecidos","Operação","Runbooks internos"].map(s => `<option ${s === article.category ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label>Visibilidade</label>
+            <select id="art-visibility">
+              ${["Utilizador","Agente","Interno"].map(s => `<option ${s === article.visibility ? "selected" : ""}>${s}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+
+        <label>Resumo</label>
+        <textarea id="art-summary">${escapeHtml(article.summary)}</textarea>
+
+        <label>Problema</label>
+        <textarea id="art-problem">${escapeHtml(article.problem)}</textarea>
+
+        <label>Diagnóstico</label>
+        <textarea id="art-diagnosis">${escapeHtml(article.diagnosis)}</textarea>
+
+        <label>Solução</label>
+        <textarea id="art-solution">${escapeHtml(article.solution)}</textarea>
+
+        <label>Procedimento — uma linha por passo</label>
+        <textarea id="art-procedure">${escapeHtml((article.procedure || []).join("\n"))}</textarea>
+
+        <label>Validação final — uma linha por ponto</label>
+        <textarea id="art-validation">${escapeHtml((article.validation || []).join("\n"))}</textarea>
+
+        <label>Notas</label>
+        <textarea id="art-notes">${escapeHtml(article.notes)}</textarea>
+
+        <label>Labels — separadas por vírgula</label>
+        <input id="art-labels" value="${escapeHtml((article.labels || []).join(", "))}">
+
+        <div class="actions">
+          <button onclick="saveArticle()">Guardar artigo</button>
+          <button class="secondary" onclick="closeModal()">Cancelar</button>
+        </div>
+      `);
+    }
+
+    function saveArticle() {
+      const article = {
+        id: document.getElementById("art-id").value.trim() || nextArticleId(),
+        title: document.getElementById("art-title").value.trim(),
+        category: document.getElementById("art-category").value,
+        visibility: document.getElementById("art-visibility").value,
+        status: document.getElementById("art-status").value,
+        summary: document.getElementById("art-summary").value.trim(),
+        problem: document.getElementById("art-problem").value.trim(),
+        diagnosis: document.getElementById("art-diagnosis").value.trim(),
+        solution: document.getElementById("art-solution").value.trim(),
+        procedure: document.getElementById("art-procedure").value.split("\n").map(x => x.trim()).filter(Boolean),
+        validation: document.getElementById("art-validation").value.split("\n").map(x => x.trim()).filter(Boolean),
+        notes: document.getElementById("art-notes").value.trim(),
+        labels: document.getElementById("art-labels").value.split(",").map(x => x.trim()).filter(Boolean)
+      };
+
+      if (!article.title || !article.summary || !article.problem || !article.solution) {
+        alert("Título, resumo, problema e solução são obrigatórios.");
+        return;
+      }
+
+      const existingIndex = data.articles.findIndex(a => a.id === editingArticleId || a.id === article.id);
+      if (existingIndex >= 0) data.articles[existingIndex] = article;
+      else data.articles.unshift(article);
+
+      saveData();
+      closeModal();
+      render();
+    }
+
+    function deleteArticle(id) {
+      if (!confirm("Apagar este artigo?")) return;
+      data.articles = data.articles.filter(a => a.id !== id);
+      saveData();
+      render();
+    }
+
+    function downloadArticle(id) {
+      const article = data.articles.find(a => a.id === id);
+      if (!article) return;
+      const safe = normalize(article.title).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      downloadFile(`${article.id}-${safe}.md`, articleToMarkdown(article), "text/markdown");
+    }
+
+    function renderImportExport() {
+      document.getElementById("view-import-export").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Importar / Exportar</h2>
+            <p class="muted">Backup e partilha manual, compatível com GitHub Pages.</p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Exportar</h3>
+            <p>Guarda os dados locais num ficheiro para backup ou partilha.</p>
+            <div class="actions">
+              <button onclick="exportAllData()">Exportar JSON</button>
+              <button class="secondary" onclick="exportAllMarkdown()">Exportar KB em Markdown</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Importar</h3>
+            <p>Importa um ficheiro JSON exportado anteriormente.</p>
+            <input type="file" accept="application/json,.json" onchange="importJsonFile(this.files[0])">
+            <div class="notice warn" style="margin-top:16px">
+              A importação substitui os dados locais deste browser.
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Definições locais</h3>
+            <label>Empresas — uma por linha</label>
+            <textarea id="settings-companies">${escapeHtml(data.settings.companies.join("\n"))}</textarea>
+            <label>Ambientes — um por linha</label>
+            <textarea id="settings-envs">${escapeHtml(data.settings.environments.join("\n"))}</textarea>
+            <label>SLA de primeira resposta, em horas</label>
+            <input id="settings-sla" type="number" min="1" value="${escapeHtml(data.settings.slaHours)}">
+            <div class="actions">
+              <button onclick="saveSettings()">Guardar definições</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Reset</h3>
+            <p>Apaga dados locais e repõe os exemplos iniciais.</p>
+            <button class="danger" onclick="resetData()">Repor dados de exemplo</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveSettings() {
+      data.settings.companies = document.getElementById("settings-companies").value.split("\n").map(x => x.trim()).filter(Boolean);
+      data.settings.environments = document.getElementById("settings-envs").value.split("\n").map(x => x.trim()).filter(Boolean);
+      data.settings.slaHours = Number(document.getElementById("settings-sla").value || 24);
+      saveData();
+      render();
+      alert("Definições guardadas.");
+    }
+
+    function renderAbout() {
+      document.getElementById("view-sobre").innerHTML = `
+        <div class="section-title">
+          <div>
+            <h2>Sobre esta versão</h2>
+            <p class="muted">Versão simplificada para funcionar apenas com GitHub Pages.</p>
+          </div>
+        </div>
+
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Incluído</h3>
+            <ul>
+              <li>App estática em HTML/CSS/JavaScript.</li>
+              <li>Gestão local de artigos KB.</li>
+              <li>Gestão local de pedidos.</li>
+              <li>Sugestão de artigos por pesquisa local.</li>
+              <li>Export/import JSON.</li>
+              <li>Export Markdown.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Removido</h3>
+            <ul>
+              <li>Backend FastAPI.</li>
+              <li>Jira real.</li>
+              <li>Confluence real.</li>
+              <li>Business Central real.</li>
+              <li>Webhooks.</li>
+              <li>OAuth/secrets.</li>
+              <li>IA generativa.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>Modelo operacional</h3>
+            <p>
+              Esta versão serve para validar o conceito, trabalhar a KB e estruturar pedidos sem custo adicional.
+              Quando a operação justificar, pode evoluir para backend e integrações reais.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Regra de resposta</h3>
+            <pre>Se existir artigo KB relevante:
+    sugerir artigo
+
+Se não existir artigo aplicável:
+    encaminhar para agente</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    function showModal(html) {
+      document.getElementById("modal-root").innerHTML = `
+        <div class="modal-backdrop">
+          <div class="modal">${html}</div>
+        </div>
+      `;
+    }
+
+    function closeModal() {
+      document.getElementById("modal-root").innerHTML = "";
+      editingArticleId = null;
+    }
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeModal();
+    });
+
+    render();
+  </script>
+</body>
+</html>

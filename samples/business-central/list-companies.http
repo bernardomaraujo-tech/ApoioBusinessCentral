@@ -1,4 +1,0 @@
-### Listar empresas Business Central
-GET https://api.businesscentral.dynamics.com/v2.0/{{tenantId}}/{{environment}}/api/v2.0/companies
-Authorization: Bearer {{BC_ACCESS_TOKEN}}
-Accept: application/json
