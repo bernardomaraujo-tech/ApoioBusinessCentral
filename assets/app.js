@@ -1,4 +1,6 @@
-const STORAGE_KEY = "ApoioBusinessCentral.simple.kb.v1";
+const STORAGE_KEY = "ApoioBusinessCentral.kb.v2";
+const ROLE_KEY = "ApoioBusinessCentral.role.v2";
+const ADMIN_UNLOCK_KEY = "ApoioBusinessCentral.kbAdminUnlocked.v2";
 const CONFIG_PASSWORD = "ApoioBC2026";
 const SUPPORT_EMAIL = "suporteit@quilaban.pt";
 
@@ -9,7 +11,9 @@ function getKb() {
       const parsed = JSON.parse(local);
       if (Array.isArray(parsed)) return parsed;
       if (Array.isArray(parsed.articles)) return parsed.articles;
-    } catch {}
+    } catch (error) {
+      console.warn("Erro a ler KB local:", error);
+    }
   }
   return Array.isArray(window.ABC_KB) ? window.ABC_KB : [];
 }
@@ -39,7 +43,13 @@ function normalize(text) {
 }
 
 function tokenize(text) {
-  const stop = new Set(["para","com","sem","uma","uns","das","dos","que","por","como","sobre","este","esta","isto","mais","menos","não","nao","erro","problema","tenho","preciso","conseguir","no","na","nos","nas","de","da","do","e","o","a","os","as","ao","em","um"]);
+  const stop = new Set([
+    "para","com","sem","uma","uns","das","dos","que","por","como","sobre",
+    "este","esta","isto","mais","menos","não","nao","tenho","preciso",
+    "conseguir","consigo","erro","problema","questao","questão","no","na",
+    "nos","nas","de","da","do","e","o","a","os","as","ao","em","um"
+  ]);
+
   return normalize(text)
     .replace(/[^a-z0-9\s-]/g, " ")
     .split(/\s+/)
@@ -63,32 +73,36 @@ function articleText(article) {
 }
 
 function searchArticles(query, role) {
-  const kb = getKb();
   const tokens = tokenize(query);
   if (!tokens.length) return [];
 
-  return kb
-    .filter(a => role === "agent" ? a.agent : a.user)
+  const visibleArticles = getKb().filter(article => role === "agent" ? article.agent : article.user);
+
+  return visibleArticles
     .map(article => {
       const title = normalize(article.title);
       const category = normalize(article.category);
       const problem = normalize(article.problem);
+      const diagnosis = normalize(article.diagnosis);
       const solution = normalize(article.solution);
+      const steps = normalize(article.steps);
       const body = normalize(articleText(article));
       let score = 0;
 
       for (const token of tokens) {
-        if (title.includes(token)) score += 7;
-        if (category.includes(token)) score += 4;
-        if (problem.includes(token)) score += 5;
-        if (solution.includes(token)) score += 5;
+        if (title.includes(token)) score += 9;
+        if (category.includes(token)) score += 5;
+        if (problem.includes(token)) score += 7;
+        if (diagnosis.includes(token)) score += 4;
+        if (solution.includes(token)) score += 7;
+        if (steps.includes(token)) score += 4;
         if (body.includes(token)) score += 1;
       }
 
-      const confidence = Math.min(100, Math.round((score / Math.max(8, tokens.length * 7)) * 100));
+      const confidence = Math.min(100, Math.round((score / Math.max(8, tokens.length * 8)) * 100));
       return { article, score, confidence };
     })
-    .filter(x => x.score > 0)
+    .filter(result => result.score > 0)
     .sort((a, b) => b.score - a.score || b.confidence - a.confidence)
     .slice(0, 8);
 }
@@ -96,53 +110,69 @@ function searchArticles(query, role) {
 function markdownToHtml(md) {
   if (!md) return "";
   const lines = String(md).split("\n");
-  let html = "";
-  let inList = false;
+  let output = "";
+  let listType = "";
 
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (!line) {
-      if (inList) { html += "</ol>"; inList = false; }
-      continue;
-    }
-
-    const ordered = line.match(/^\d+\.\s+(.+)/);
-    if (ordered) {
-      if (!inList) { html += "<ol>"; inList = true; }
-      html += `<li>${escapeHtml(ordered[1])}</li>`;
-      continue;
-    }
-
-    const bullet = line.match(/^-\s+(.+)/);
-    if (bullet) {
-      if (!inList) { html += "<ul>"; inList = true; }
-      html += `<li>${escapeHtml(bullet[1])}</li>`;
-      continue;
-    }
-
-    if (inList) { html += "</ol>"; inList = false; }
-
-    if (line.startsWith("### ")) {
-      html += `<h4>${escapeHtml(line.replace("### ", ""))}</h4>`;
-    } else {
-      html += `<p>${escapeHtml(line)}</p>`;
+  function closeList() {
+    if (listType) {
+      output += `</${listType}>`;
+      listType = "";
     }
   }
 
-  if (inList) html += "</ol>";
-  return html;
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      closeList();
+      continue;
+    }
+
+    const numbered = line.match(/^\d+\.\s+(.+)/);
+    const bullet = line.match(/^[-•]\s+(.+)/);
+
+    if (numbered) {
+      if (listType !== "ol") {
+        closeList();
+        output += "<ol>";
+        listType = "ol";
+      }
+      output += `<li>${escapeHtml(numbered[1])}</li>`;
+      continue;
+    }
+
+    if (bullet) {
+      if (listType !== "ul") {
+        closeList();
+        output += "<ul>";
+        listType = "ul";
+      }
+      output += `<li>${escapeHtml(bullet[1])}</li>`;
+      continue;
+    }
+
+    closeList();
+
+    if (line.startsWith("### ")) {
+      output += `<h4>${escapeHtml(line.replace("### ", ""))}</h4>`;
+    } else {
+      output += `<p>${escapeHtml(line)}</p>`;
+    }
+  }
+
+  closeList();
+  return output;
+}
+
+function roleFromStorage() {
+  return localStorage.getItem(ROLE_KEY) || "user";
 }
 
 function roleLabel(role) {
   return role === "agent" ? "Agente" : "Utilizador";
 }
 
-function roleFromStorage() {
-  return localStorage.getItem("ApoioBusinessCentral.role") || "user";
-}
-
 function setRole(role) {
-  localStorage.setItem("ApoioBusinessCentral.role", role);
+  localStorage.setItem(ROLE_KEY, role);
   renderMain();
 }
 
@@ -181,7 +211,8 @@ Obrigado.`
 }
 
 function refreshSupportMailLink() {
-  refreshSupportMailLink();
+  const mail = document.getElementById("supportMail");
+  if (mail) mail.href = buildMailto();
 }
 
 function renderMain() {
@@ -190,7 +221,7 @@ function renderMain() {
 
   const role = roleFromStorage();
   const kb = getKb();
-  const visibleCount = kb.filter(a => role === "agent" ? a.agent : a.user).length;
+  const visibleCount = kb.filter(article => role === "agent" ? article.agent : article.user).length;
 
   root.innerHTML = `
     <section class="hero-card">
@@ -202,8 +233,8 @@ function renderMain() {
 
         <div>
           <div class="role-selector">
-            <button class="${role === "user" ? "active" : ""}" onclick="setRole('user')">♡ Sou utilizador</button>
-            <button class="${role === "agent" ? "active" : ""}" onclick="setRole('agent')">♧ Sou agente</button>
+            <button class="${role === "user" ? "active" : ""}" onclick="setRole('user')">Sou utilizador</button>
+            <button class="${role === "agent" ? "active" : ""}" onclick="setRole('agent')">Sou agente</button>
           </div>
           <div class="meta-row">
             <span class="pill ${role === "agent" ? "agent" : "user"}">Perfil: ${roleLabel(role)}</span>
@@ -217,7 +248,7 @@ function renderMain() {
           <span class="search-symbol">⌕</span>
           <input id="searchInput" class="search-input" autocomplete="off" placeholder="Que problema queres resolver?" oninput="handleSearch()">
         </div>
-        <button onclick="handleSearch()">Pesquisar</button>
+        <button type="button" onclick="handleSearch()">Pesquisar</button>
       </div>
 
       <div class="support-card">
@@ -235,14 +266,14 @@ function renderMain() {
               <input type="file" id="errorImage" accept="image/*" onchange="previewImage(event)">
               <p class="small-note">A imagem deve ser anexada manualmente no email aberto.</p>
             </div>
-            <a id="supportMail" class="btn warn" href="${buildMailto()}">✉ Enviar email para suporte</a>
+            <a id="supportMail" class="btn warn" href="${buildMailto()}">Enviar email para suporte</a>
           </div>
           <img id="imagePreview" class="image-preview" alt="Pré-visualização da imagem">
         </div>
       </div>
     </section>
 
-    <section class="content-grid" id="base">
+    <section class="content-grid">
       <div class="panel">
         <div class="panel-head">
           <h2>Sugestões para ti</h2>
@@ -266,13 +297,18 @@ function renderMain() {
 }
 
 function handleSearch() {
+  refreshSupportMailLink();
+
   const role = roleFromStorage();
   const query = currentQuery();
   const resultsEl = document.getElementById("results");
-  refreshSupportMailLink();
+  const articlePanel = document.getElementById("articlePanel");
+
+  if (!resultsEl || !articlePanel) return;
 
   if (!query || query.length < 2) {
     resultsEl.innerHTML = `<div class="empty">Começa a escrever para ver sugestões da base de conhecimento.</div>`;
+    articlePanel.innerHTML = `<div class="empty">Seleciona uma sugestão para ler a solução.</div>`;
     return;
   }
 
@@ -285,30 +321,31 @@ function handleSearch() {
         Revê o detalhe adicional acima e usa o botão de email para encaminhar o tema para o suporte.
       </div>
     `;
+    articlePanel.innerHTML = `<div class="empty">Sem artigo selecionado.</div>`;
     return;
   }
 
-  resultsEl.innerHTML = results.map((r, idx) => `
-    <div class="result-card" onclick="showArticle('${r.article.id}')">
+  resultsEl.innerHTML = results.map(result => `
+    <button type="button" class="result-card" onclick="showArticle('${escapeHtml(result.article.id)}')">
       <div class="result-icon">▤</div>
       <div>
-        <h3>${escapeHtml(r.article.title)}</h3>
-        <p>${escapeHtml(r.article.category)} · ${escapeHtml(r.article.id)}</p>
-        <div class="confidence"><div style="width:${r.confidence}%"></div></div>
+        <h3>${escapeHtml(result.article.title)}</h3>
+        <p>${escapeHtml(result.article.category || "Sem categoria")} · ${escapeHtml(result.article.id)}</p>
+        <div class="confidence"><div style="width:${result.confidence}%"></div></div>
       </div>
       <div class="chevron">›</div>
-    </div>
+    </button>
   `).join("");
 
-  if (results[0]) showArticle(results[0].article.id, false);
+  showArticle(results[0].article.id, false);
 }
 
 function showArticle(id, scroll = true) {
   const role = roleFromStorage();
-  const article = getKb().find(a => a.id === id);
-  if (!article) return;
-
+  const article = getKb().find(item => item.id === id);
   const panel = document.getElementById("articlePanel");
+  if (!article || !panel) return;
+
   panel.innerHTML = `
     <div class="article-body">
       <h2>${escapeHtml(article.title)}</h2>
@@ -359,52 +396,45 @@ function previewImage(event) {
   reader.readAsDataURL(file);
 }
 
-function configLogin() {
-  const password = document.getElementById("configPassword").value;
-  if (password !== CONFIG_PASSWORD) {
-    alert("Password incorreta.");
-    return;
-  }
-  sessionStorage.setItem("ApoioBusinessCentral.configUnlocked", "true");
-  renderConfig();
-}
-
-function renderConfig() {
-  const root = document.getElementById("configApp");
+function renderKbAdmin() {
+  const root = document.getElementById("kbAdminApp");
   if (!root) return;
 
-  const unlocked = sessionStorage.getItem("ApoioBusinessCentral.configUnlocked") === "true";
+  const unlocked = sessionStorage.getItem(ADMIN_UNLOCK_KEY) === "true";
+
   if (!unlocked) {
     root.innerHTML = `
-      <div class="config-layout"><div class="config-card">
-        <h2>Configuração</h2>
-        <p class="muted">Página protegida por password para importar/exportar a base de conhecimento.</p>
+      <div class="config-layout">
+        <div class="config-card">
+          <h2>Base de conhecimento</h2>
+          <p>Importação e exportação da base de conhecimento ApoioBusinessCentral.</p>
 
-        <label>Password</label>
-        <input type="password" id="configPassword" placeholder="Introduz a password" onkeydown="if(event.key==='Enter') configLogin()">
+          <label>Password</label>
+          <input type="password" id="kbPassword" placeholder="Introduz a password" onkeydown="if(event.key === 'Enter') unlockKbAdmin()">
 
-        <div class="actions">
-          <button onclick="configLogin()">Entrar</button>
-          <a class="btn secondary" href="index.html">Voltar</a>
+          <div class="actions">
+            <button type="button" onclick="unlockKbAdmin()">Entrar</button>
+            <a class="btn secondary" href="index.html">Voltar à pesquisa</a>
+          </div>
+
+          <div class="notice warn">
+            Em GitHub Pages, esta password é apenas uma proteção simples de interface.
+          </div>
         </div>
-
-        <div class="notice warn">
-          Esta password é apenas uma proteção simples de interface. Em GitHub Pages não existe autenticação real.
-        </div>
-      </div></div>
+      </div>
     `;
     return;
   }
 
   const kb = getKb();
-  const userCount = kb.filter(a => a.user).length;
-  const agentCount = kb.filter(a => a.agent).length;
+  const userCount = kb.filter(article => article.user).length;
+  const agentCount = kb.filter(article => article.agent).length;
 
   root.innerHTML = `
     <div class="config-layout">
       <div class="config-card">
-        <h2>Configuração da base de conhecimento</h2>
-        <p class="muted">Importa ou exporta a base de conhecimento em JSON.</p>
+        <h2>Base de conhecimento</h2>
+        <p>Faz download ou upload da base de conhecimento usada na pesquisa.</p>
 
         <div class="stats">
           <div class="stat"><strong>${kb.length}</strong><span>Artigos totais</span></div>
@@ -413,32 +443,42 @@ function renderConfig() {
         </div>
 
         <div class="actions">
-          <button onclick="exportKb()">Exportar JSON</button>
-          <button class="secondary" onclick="downloadMarkdown()">Exportar Markdown</button>
-          <button class="danger" onclick="resetKbConfirm()">Repor base original</button>
+          <button type="button" onclick="exportKbJson()">Download JSON</button>
+          <button type="button" class="secondary" onclick="exportKbMarkdown()">Download Markdown</button>
+          <button type="button" class="danger" onclick="resetKbConfirm()">Repor base original</button>
           <a class="btn secondary" href="index.html">Voltar à pesquisa</a>
         </div>
       </div>
 
       <div class="config-card">
-        <h3>Importar JSON</h3>
-        <p class="muted">A importação substitui a base local guardada neste browser.</p>
+        <h3>Upload da base de conhecimento</h3>
+        <p>Importa um ficheiro JSON exportado anteriormente. A importação substitui a base local deste browser.</p>
         <input type="file" accept="application/json,.json" onchange="importKbFile(this.files[0])">
       </div>
 
       <div class="config-card">
-        <h3>Editar JSON manualmente</h3>
-        <p class="muted">Área avançada. Usa apenas para ajustes rápidos.</p>
+        <h3>Editor JSON</h3>
+        <p>Uso avançado: permite ajustar a base diretamente em JSON.</p>
         <textarea id="kbJson">${escapeHtml(JSON.stringify(kb, null, 2))}</textarea>
         <div class="actions">
-          <button class="ok" onclick="saveManualJson()">Guardar JSON</button>
+          <button type="button" class="ok" onclick="saveManualJson()">Guardar JSON</button>
         </div>
       </div>
     </div>
   `;
 }
 
-function exportKb() {
+function unlockKbAdmin() {
+  const password = document.getElementById("kbPassword")?.value || "";
+  if (password !== CONFIG_PASSWORD) {
+    alert("Password incorreta.");
+    return;
+  }
+  sessionStorage.setItem(ADMIN_UNLOCK_KEY, "true");
+  renderKbAdmin();
+}
+
+function exportKbJson() {
   const payload = {
     exportedAt: new Date().toISOString(),
     articles: getKb()
@@ -446,13 +486,14 @@ function exportKb() {
   downloadFile("apoio-business-central-kb.json", JSON.stringify(payload, null, 2), "application/json");
 }
 
-function downloadMarkdown() {
-  const md = getKb().map(articleToMarkdown).join("\n\n---\n\n");
-  downloadFile("apoio-business-central-kb.md", md, "text/markdown");
+function exportKbMarkdown() {
+  const markdown = getKb().map(articleToMarkdown).join("\n\n---\n\n");
+  downloadFile("apoio-business-central-kb.md", markdown, "text/markdown");
 }
 
 function importKbFile(file) {
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = () => {
     try {
@@ -460,11 +501,12 @@ function importKbFile(file) {
       const articles = Array.isArray(parsed) ? parsed : parsed.articles;
       if (!Array.isArray(articles)) throw new Error("O ficheiro não contém uma lista de artigos.");
       if (!confirm("Importar esta base vai substituir a base local deste browser. Continuar?")) return;
+
       saveKb(articles);
       alert("Base importada com sucesso.");
-      renderConfig();
-    } catch (err) {
-      alert("Erro ao importar: " + err.message);
+      renderKbAdmin();
+    } catch (error) {
+      alert("Erro ao importar: " + error.message);
     }
   };
   reader.readAsText(file);
@@ -476,28 +518,17 @@ function saveManualJson() {
     if (!Array.isArray(articles)) throw new Error("O JSON tem de ser uma lista de artigos.");
     saveKb(articles);
     alert("Base guardada.");
-    renderConfig();
-  } catch (err) {
-    alert("Erro no JSON: " + err.message);
+    renderKbAdmin();
+  } catch (error) {
+    alert("Erro no JSON: " + error.message);
   }
 }
 
 function resetKbConfirm() {
   if (!confirm("Repor a base original incorporada na aplicação?")) return;
   resetKb();
-  renderConfig();
-}
-
-function downloadFile(filename, content, type) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  alert("Base original reposta.");
+  renderKbAdmin();
 }
 
 function articleToMarkdown(article) {
@@ -529,7 +560,19 @@ ${article.notes || ""}
 `;
 }
 
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("app")) renderMain();
-  if (document.getElementById("configApp")) renderConfig();
+  renderMain();
+  renderKbAdmin();
 });
